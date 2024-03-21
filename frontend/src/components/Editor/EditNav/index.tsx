@@ -1,5 +1,7 @@
 import PropTypes from "prop-types";
 import "./edit.css";
+import useWindow from "../../hooks/useWindow";
+import { useMemo } from "react";
 
 const Nav = ({
   preview,
@@ -12,11 +14,17 @@ const Nav = ({
   setText: (preview: string) => void;
   setPreview: (preview: boolean) => void;
 }) => {
+  const { width } = useWindow();
+  const isSmall = useMemo(() => {
+    return width < 800;
+  }, [width]);
   const insertText = (txt: string) => {
     setText(text+txt);
   };
   return (
-    <div className="topNav">
+    <div className="topNav" style={{
+      width: isSmall ? "100%" : "100%",
+    }}>
       <button onClick={() => insertText("<= --  <=")}>
         <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M120-120v-80h720v80H120Zm0-160v-80h480v80H120Zm0-160v-80h720v80H120Zm0-160v-80h480v80H120Zm0-160v-80h720v80H120Z"/></svg>
       </button>

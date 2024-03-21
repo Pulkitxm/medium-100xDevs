@@ -1,10 +1,11 @@
 import "./Editor.css";
 import EditNav from "./EditNav";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { apiUrl } from "../../config";
 import { RootState } from "../../state/store";
+import useWindow from "../hooks/useWindow";
 
 const Editor = ({
   text,
@@ -17,6 +18,10 @@ const Editor = ({
   preview: boolean;
   setPreview: (preview: boolean) => void;
 }) => {
+  const { width } = useWindow();
+  const isSmall = useMemo(() => {
+    return width < 800;
+  }, [width]);
   const [loading, setLoading] = useState(false);
   const user = useSelector((state) => (state as RootState).user);
   const shakeRef = useRef<HTMLDivElement>(null);
@@ -42,32 +47,40 @@ const Editor = ({
       content: text,
     };
     axios
-    .post(apiUrl + "/api/v1/blog",newBlog, {
-      headers: {
-        Authorization: `Bearer ${user.token}`,
-      },
-    }).then((res)=>{
-      console.log(res);
-      setLoading(true);
-    });
+      .post(apiUrl + "/api/v1/blog", newBlog, {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      })
+      .then((res) => {
+        console.log(res);
+        setLoading(true);
+      });
   };
   return (
     <div
       className="editor"
       style={{
-        width: preview ? "50%" : "100%",
+        width: isSmall ? preview ? "96%" : "50%":preview ? "50%" : "100%",
+        height:"100%"
       }}
     >
-      <EditNav
-        text={text}
-        setText={setText}
-        preview={preview}
-        setPreview={setPreview}
-      />
+      {!isSmall && (
+        <EditNav
+          text={text}
+          setText={setText}
+          preview={preview}
+          setPreview={setPreview}
+        />
+      )}
       <textarea
         onChange={(e) => setText(e.target.value)}
         value={text}
         spellCheck="false"
+        style={{
+          width: preview ? "100%" : "100%",
+          height: "100%",
+        }}
       />
       {loading ? (
         <div className="save">
