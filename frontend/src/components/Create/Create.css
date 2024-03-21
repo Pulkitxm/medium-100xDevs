@@ -1,0 +1,21 @@
+.create {
+  position: fixed;
+  bottom: 1.5em;
+  right: 1.5em;
+  width: 3em;
+  height: 3em;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  opacity: 0.7;
+  user-select: none;
+}
+
+.create:hover {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.create:active {
+  opacity: 1;
+  transform: scale(1);
+}

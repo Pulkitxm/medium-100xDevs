@@ -1,0 +1,11 @@
+.new-blog{
+    width: 100vw;
+    height: 100vh;
+    padding-top: 5em;
+    display: flex;
+}
+
+.new-blog .editor,
+.new-blog .preview{
+    box-shadow: 2px 2px 20px #0000006e;
+}

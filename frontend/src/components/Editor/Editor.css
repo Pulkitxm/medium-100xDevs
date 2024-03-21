@@ -1,0 +1,56 @@
+.editor{
+    width: 50%;
+    margin: 1em;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.editor textarea{
+    width: 100%;
+    height: 92.5%;
+    outline: none;
+    background: #cacaca;
+    resize: none;
+    padding: 1em;
+    font-size: 1.4em;
+    font-weight: 700;
+    line-height: 1em;
+}
+
+.editor textarea::selection{
+    background-color: rgb(0, 0, 0);
+    color: #fff;
+}
+
+.save{
+    position: fixed;
+    bottom: 2em;
+    right: 2em;
+    transform: scale(2);
+    cursor: pointer;
+}
+
+.shake{
+    animation: shake 1s forwards;
+}
+
+@keyframes shake {
+    0%{
+        transform: scale(2) rotate(-10deg);
+    }
+    20%{
+        transform: scale(2) rotate(10deg);
+    }
+    40%{
+        transform: scale(2) rotate(-10deg);
+    }
+    60%{
+        transform: scale(2) rotate(10deg);
+    }
+    80%{
+        transform: scale(2) rotate(-10deg);
+    }
+    100%{
+        transform: scale(2) rotate(0deg);
+    }
+}

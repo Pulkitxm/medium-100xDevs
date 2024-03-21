@@ -1,0 +1,11 @@
+.preview{
+    width: 50%;
+    margin: 1em;
+    border-radius: 10px;
+    overflow-y: scroll;
+}
+.content{
+    width: 100%;
+    padding: 1em;
+    word-wrap: break-word;
+}

@@ -1,0 +1,7 @@
+.topNav {
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+  margin-top: 1em;
+  margin-bottom: 1.5em;
+}
