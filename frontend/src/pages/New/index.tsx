@@ -32,6 +32,7 @@ const New = () => {
         });
     }
     if(!user.token){
+      localStorage.setItem("redirect", "/blog/"+id);
       navigate("/signin");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

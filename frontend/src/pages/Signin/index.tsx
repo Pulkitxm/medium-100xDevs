@@ -9,7 +9,15 @@ const Signin = () => {
   const navigate = useNavigate();
   const user = useSelector((state: RootState) => state.user);
   useEffect(() => {
-    if (user.token) navigate("/blogs");
+    if (user.token) {
+      const url= localStorage.getItem("redirect") as string;
+      if(url){
+        localStorage.removeItem("redirect");
+        navigate(url);
+      }else{
+        navigate("/blogs");
+      }
+    }
   }, [user, []]);
   return (
     <div className="w-screen h-screen grid grid-rows-1 lg:grid-cols-2 grid-cols-1">
