@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import { apiUrl } from "../../config";
 import { RootState } from "../../state/store";
 import useWindow from "../hooks/useWindow";
+import { useParams } from "react-router-dom";
 
 const Editor = ({
   text,
@@ -18,6 +19,7 @@ const Editor = ({
   preview: boolean;
   setPreview: (preview: boolean) => void;
 }) => {
+  const { id } = useParams();
   const { width } = useWindow();
   const isSmall = useMemo(() => {
     return width < 800;
@@ -38,7 +40,7 @@ const Editor = ({
         (shakeRef.current as HTMLDivElement).classList.add("shake");
       }, 100);
     }
-    localStorage.setItem("new-blog", text);
+    if(!id)localStorage.setItem("new-blog", text);
   }, [text]);
   const handleSave = () => {
     setLoading(true);

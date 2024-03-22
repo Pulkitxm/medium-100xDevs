@@ -22,11 +22,12 @@ const New = () => {
   const { id } = useParams();
   const [preview, setPreview] = useState(true);
   const [text, setText] = useState("");
+  const [fetched, setFetched] = useState(false);
   const markUpText = useMemo(() => {
     return convertIntoMarkup(text);
   }, [text]);
   useEffect(() => {
-    if (id && user.token) {
+    if (id && user.token && !fetched) {
       axios
         .get(apiUrl + "/api/v1/blog/" + id, {
           headers: {
@@ -35,6 +36,7 @@ const New = () => {
         })
         .then((res) => {
           setText(res.data.content);
+          setFetched(true);
         });
     }
     if (!user.token) {
