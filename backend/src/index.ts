@@ -13,17 +13,6 @@ const app = new Hono<{
   };
 }>();
 
-app.get("/", async (c) => {
-  const prisma = new PrismaClient({
-    datasourceUrl: c.env?.DATABASE_URL,
-  }).$extends(withAccelerate());
-
-  return c.json({
-    posts: await prisma.post.findMany(),
-    users: await prisma.user.findMany(),
-  });
-});
-
 app.use(cors());
 app.route("/api/v1/blog", blogRouter);
 app.route("/api/v1/user", userRouter);

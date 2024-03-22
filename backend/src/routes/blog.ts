@@ -102,7 +102,6 @@ blogRouter.post("/", async (c) => {
 blogRouter.put("/:id", async (c) => {
   const { id } = c.req.param();
   const body: NewBloUpdateRequest = await c.req.json();
-  const userId: string | undefined = body.userId;
 
   const obj = updateBlogInput.safeParse({ id, ...body });
   if (!obj.success) {
@@ -113,16 +112,25 @@ blogRouter.put("/:id", async (c) => {
     const prisma = new PrismaClient({
       datasourceUrl: c.env.DATABASE_URL,
     }).$extends(withAccelerate());
-
-    const { title, content, published } = obj.data;
+    const header = c.req.header("authorization") || "";
+    const token = header.split(" ")[1] || "";
+    const resp = await verify(token, c.env?.JWT_TOKEN);
+    const user = await prisma.user.findUnique({
+      where: {
+        id: resp.id,
+      },
+    });
+    if(!user){
+      return c.json({ message: "Not logged in" });
+    }
+    const { title, content } = obj.data;
 
     const newBlog = await prisma.post.update({
       where: { id },
       data: {
         title,
         content,
-        published,
-        authorId: userId ? userId : "",
+        authorId: user.id ? user.id : "",
       },
     });
     return c.json(newBlog);

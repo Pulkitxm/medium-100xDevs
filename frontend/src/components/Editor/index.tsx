@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { apiUrl } from "../../config";
 import { RootState } from "../../state/store";
 import useWindow from "../hooks/useWindow";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const Editor = ({
   text,
@@ -19,6 +19,10 @@ const Editor = ({
   preview: boolean;
   setPreview: (preview: boolean) => void;
 }) => {
+  const navigate = useNavigate();
+  const [ichange, setIchange] = useState(false);
+  const [fetching, setFetching] = useState(false);
+  const [saving, setSaving] = useState(false);
   const { id } = useParams();
   const { width } = useWindow();
   const isSmall = useMemo(() => {
@@ -32,39 +36,74 @@ const Editor = ({
     if (txt && txt != text) {
       setText(txt as string);
     }
+    if (id && user.token && !fetching) {
+      setFetching(true);
+      axios
+        .get(apiUrl + "/api/v1/blog/" + id, {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        })
+        .then((res) => {
+          setText(res.data.content);
+          setFetching(false);
+        });
+    }
   }, []);
   useEffect(() => {
-    if (shakeRef.current) {
+    if (!saving &&  shakeRef.current) {
       (shakeRef.current as HTMLDivElement).classList.remove("shake");
       setTimeout(() => {
         (shakeRef.current as HTMLDivElement).classList.add("shake");
       }, 100);
     }
-    if(!id)localStorage.setItem("new-blog", text);
+    if (!id) localStorage.setItem("new-blog", text);
   }, [text]);
   const handleSave = () => {
+    if(!ichange) return;
     setLoading(true);
     const newBlog = {
       title: "A new Blog",
       content: text,
     };
-    axios
-      .post(apiUrl + "/api/v1/blog", newBlog, {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      })
-      .then((res) => {
-        console.log(res);
-        setLoading(true);
-      });
+    if (id) {
+      axios
+        .put(apiUrl + "/api/v1/blog/"+id, newBlog, {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        })
+        .then(() => {
+          setTimeout(() => {
+            setLoading(false);
+            setSaving(true);
+            setTimeout(() => {
+              setSaving(false);
+            } , 1000);
+          } , 1000);
+        });
+      
+    } else {
+      axios
+        .post(apiUrl + "/api/v1/blog", newBlog, {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .then((res:any) => {
+          setLoading(false);
+          navigate("/blog/"+res.data.id);
+          localStorage.removeItem("new-blog");
+        });
+    }
   };
   return (
     <div
       className="editor"
       style={{
-        width: isSmall ? preview ? "96%" : "50%":preview ? "50%" : "100%",
-        height:"100%"
+        width: isSmall ? (preview ? "96%" : "50%") : preview ? "50%" : "100%",
+        height: "100%",
       }}
     >
       {!isSmall && (
@@ -75,21 +114,51 @@ const Editor = ({
           setPreview={setPreview}
         />
       )}
-      <textarea
-        onChange={(e) => setText(e.target.value)}
-        value={text}
-        spellCheck="false"
-        style={{
-          width: preview ? "100%" : "100%",
-          height: "100%",
-        }}
-      />
+      {fetching ? (
+        <div
+          style={{
+            width: preview ? "100%" : "100%",
+            height: "100%",
+          }}
+          className="flex items-center justify-center"
+        >
+          <div className="loading flex items-center justify-center">
+            <div className="flex space-x-2 animate-pulse">
+              <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <textarea
+          onChange={(e) => {
+            setText(e.target.value);
+            setIchange(true);
+          }}
+          value={text}
+          spellCheck="false"
+          style={{
+            width: preview ? "100%" : "100%",
+            height: "100%",
+          }}
+        />
+      )}
       {loading ? (
         <div className="save">
           <div className="m-auto w-4 h-4 bg-gray-300 border-t-4 border-blue-500 rounded-full animate-spin"></div>
         </div>
+      ) : saving ? (
+        <div className="save" style={{opacity:ichange?"1":".5"}} ref={shakeRef} onClick={handleSave}>
+          <svg fill="none" viewBox="0 0 15 15" height="1em" width="1em" >
+            <path
+              stroke="currentColor"
+              d="M4 7.5L7 10l4-5m-3.5 9.5a7 7 0 110-14 7 7 0 010 14z"
+            />
+          </svg>
+        </div>
       ) : (
-        <div className="save" ref={shakeRef} onClick={handleSave}>
+        <div className="save" style={{opacity:ichange?"1":".5"}} ref={shakeRef} onClick={handleSave}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             height="24"
